@@ -17,9 +17,9 @@
         <div id="geocoder-end" class="geocoder"></div>
         <button id="use-user-location" onclick="useUserLocation()">Use My Location</button>
         <button id="get-route" onclick="getRoute()">Get Route</button>
+        <div id="loading" class="loading">Loading...</div>
     </div>
     <script>
-        // Set the Mapbox access token
         mapboxgl.accessToken = '{{ mapbox_token }}';
     </script>
     <script src="{{ url_for('static', filename='js/map.js') }}"></script>
