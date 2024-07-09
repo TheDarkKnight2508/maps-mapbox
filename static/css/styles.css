@@ -41,3 +41,36 @@ body {
     top: 10px;
     right: 10px;
 }
+
+.mapboxgl-ctrl-group.time-of-day-buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 150px;
+    padding: 5px;
+}
+
+.time-of-day-button {
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.time-of-day-button:hover {
+    background-color: #e0e0e0;
+}
+
+.time-of-day-button:focus {
+    outline: none;
+}
+
+/* Center right positioning for pitch, bearing, and zoom controls */
+.mapboxgl-ctrl-right-center {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
