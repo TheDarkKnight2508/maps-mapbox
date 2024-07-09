@@ -48,21 +48,32 @@ function initializeMap(center = bangaloreCoordinates) {
 
 // Initialize the geocoders
 function initializeGeocoders() {
-    const geocoderStart = new MapboxGeocoder({
+    const bangaloreBounds = [77.3733, 12.7343, 77.8721, 13.1377]; // Approx bounding box for Bangalore
+    const karnatakaBounds = [74.0411, 11.5933, 78.5883, 18.4506]; // Approx bounding box for Karnataka
+    const indiaBounds = [68.1766, 6.7471, 97.4026, 35.5087]; // Approx bounding box for India
+
+    const geocoderOptions = {
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
-        placeholder: "Enter starting location"
+        countries: "IN", // Limit results to India
+        proximity: { longitude: 77.5946, latitude: 12.9716 }, // Bangalore coordinates for proximity
+    };
+
+    const geocoderStart = new MapboxGeocoder({
+        ...geocoderOptions,
+        bbox: bangaloreBounds, // Bangalore bounding box for first priority
     });
 
     const geocoderEnd = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-        placeholder: "Enter destination"
+        ...geocoderOptions,
+        bbox: bangaloreBounds, // Bangalore bounding box for first priority
     });
 
+    // Append geocoders to the DOM
     document.getElementById('geocoder-start').appendChild(geocoderStart.onAdd(map));
     document.getElementById('geocoder-end').appendChild(geocoderEnd.onAdd(map));
 
+    // Handle results from the geocoders
     geocoderStart.on('result', (e) => {
         startCoordinates = e.result.geometry.coordinates;
         addStartMarker(startCoordinates);
@@ -72,7 +83,27 @@ function initializeGeocoders() {
     geocoderEnd.on('result', (e) => {
         endCoordinates = e.result.geometry.coordinates;
         addEndMarker(endCoordinates);
-        panToLocation(endCoordinates);
+ });
+
+    // Modify geocoder options to include broader search results
+    geocoderStart.on('results', (e) => {
+        if (e.features.length < 1) {
+            geocoderStart.setBbox(karnatakaBounds); // Extend search to Karnataka if no results in Bangalore
+            geocoderStart.query(e.query); // Re-query with the broader bounding box
+        } else if (e.features.length < 3) {
+            geocoderStart.setBbox(indiaBounds); // Extend search to India if few results in Karnataka
+            geocoderStart.query(e.query); // Re-query with the broader bounding box
+        }
+    });
+
+    geocoderEnd.on('results', (e) => {
+        if (e.features.length < 1) {
+            geocoderEnd.setBbox(karnatakaBounds); // Extend search to Karnataka if no results in Bangalore
+            geocoderEnd.query(e.query); // Re-query with the broader bounding box
+        } else if (e.features.length < 3) {
+            geocoderEnd.setBbox(indiaBounds); // Extend search to India if few results in Karnataka
+            geocoderEnd.query(e.query); // Re-query with the broader bounding box
+        }
     });
 }
 
