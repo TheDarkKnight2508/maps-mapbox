@@ -86,6 +86,7 @@ function addTimeOfDayDropdown() {
     dropdownButton.type = 'button';
     dropdownButton.innerText = '🌞';
     dropdownButton.onclick = () => {
+        closeDropdown('.map-style-dropdown .dropdown-menu'); // Close other dropdown
         dropdownMenu.classList.toggle('show');
     };
 
@@ -138,16 +139,7 @@ function addTimeOfDayDropdown() {
     }, 'top-right');
 }
 
-// Create dropdown button
-function createDropdownButton(id, text, label) {
-    const button = document.createElement('button');
-    button.className = 'dropdown-item';
-    button.type = 'button';
-    button.id = id;
-    button.innerText = text;
-    button.title = label;
-    return button;
-}
+
 
 // Update dropdown icon
 function updateDropdownIcon(timeOfDay) {
@@ -170,6 +162,78 @@ function updateDropdownIcon(timeOfDay) {
     }
 }
 
+// Add map style buttons
+function addMapStyleDropdown() {
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.className = 'mapboxgl-ctrl mapboxgl-ctrl-group map-style-dropdown';
+
+    const dropdownButton = document.createElement('button');
+    dropdownButton.className = 'mapboxgl-ctrl-icon dropdown-button';
+    dropdownButton.type = 'button';
+    dropdownButton.innerText = '🗺️';
+    dropdownButton.onclick = () => {
+        closeDropdown('.time-of-day-dropdown .dropdown-menu'); // Close other dropdown
+        dropdownMenu.classList.toggle('show');
+    };
+
+    const dropdownMenu = document.createElement('div');
+    dropdownMenu.className = 'dropdown-menu';
+
+    const standardButton = createDropdownButton('standard', '🗺️', 'Standard');
+    standardButton.onclick = () => {
+        map.setStyle('mapbox://styles/mapbox/standard');
+        setTimeout(setTimeBasedMapStyleInitial, 100);
+        dropdownMenu.classList.remove('show');
+    };
+
+    const satelliteButton = createDropdownButton('satellite', '🛰️', 'Satellite');
+    satelliteButton.onclick = () => {
+        map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+        dropdownMenu.classList.remove('show');
+    };
+
+    dropdownMenu.appendChild(standardButton);
+    dropdownMenu.appendChild(satelliteButton);
+
+    dropdownContainer.appendChild(dropdownButton);
+    dropdownContainer.appendChild(dropdownMenu);
+
+    map.addControl({
+        onAdd: () => {
+            return dropdownContainer;
+        },
+        onRemove: () => {
+            dropdownContainer.parentNode.removeChild(dropdownContainer);
+        }
+    }, 'top-right');
+}
+
+// Update dropdown icon for map style
+function updateMapStyleDropdownIcon(style) {
+    const dropdownButton = document.querySelector('.map-style-dropdown .dropdown-button');
+    if (dropdownButton) {
+        switch (style) {
+            case 'standard':
+                dropdownButton.innerText = '🗺️';
+                break;
+            case 'satellite':
+                dropdownButton.innerText = '🛰️';
+                break;
+        }
+    }
+}
+
+// Create dropdown button
+function createDropdownButton(id, text, label) {
+    const button = document.createElement('button');
+    button.className = 'dropdown-item';
+    button.type = 'button';
+    button.id = id;
+    button.innerText = text;
+    button.title = label;
+    return button;
+}
+
 // Close the dropdown if the user clicks outside of it
 window.onclick = (event) => {
     if (!event.target.matches('.dropdown-button')) {
@@ -182,3 +246,11 @@ window.onclick = (event) => {
         }
     }
 };
+
+// Function to close the dropdown
+function closeDropdown(selector) {
+    const dropdownMenu = document.querySelector(selector);
+    if (dropdownMenu && dropdownMenu.classList.contains('show')) {
+        dropdownMenu.classList.remove('show');
+    }
+}

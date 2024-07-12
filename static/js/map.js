@@ -45,6 +45,7 @@ function initializeMap(center = bangaloreCoordinates) {
         }
     });
     addTimeOfDayDropdown();
+    addMapStyleDropdown();
 }
 
 // Initialize the geocoders
@@ -117,6 +118,7 @@ function panToLocation(coordinates) {
 }
 
 // Use user location as starting location
+// Use user location as starting location
 function useUserLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
@@ -128,8 +130,13 @@ function useUserLocation() {
                 startMarker = null;
             }
             
-            // Pan to user location without adding a new start marker
+            // Add a new start marker at the user's location
+            addStartMarker(startCoordinates);
+
+            // Pan to user location
             panToLocation(startCoordinates);
+            
+            // Clear and set the geocoder input with the user's location
             clearGeocoderInput('geocoder-start');
             setGeocoderInput('geocoder-start', startCoordinates);
         }, error => {
@@ -140,8 +147,6 @@ function useUserLocation() {
         alert("Geolocation is not supported by this browser.");
     }
 }
-
-
 
 // Clear geocoder input
 function clearGeocoderInput(geocoderId) {
@@ -243,6 +248,6 @@ function formatTime(number) {
 document.addEventListener('DOMContentLoaded', () => {
     initializeGeocoders();
     initializeMap();
-    setTimeout(setTimeBasedMapStyleInitial,500);
+    setTimeout(setTimeBasedMapStyleInitial,100);
     startPeriodicTimeUpdates();   
 });
