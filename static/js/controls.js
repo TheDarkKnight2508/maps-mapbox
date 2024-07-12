@@ -77,42 +77,108 @@ class ZoomControls {
 }
 
 // Add time of day buttons
-function addTimeOfDayButtons() {
-    const timeOfDayContainer = document.createElement('div');
-    timeOfDayContainer.className = 'mapboxgl-ctrl mapboxgl-ctrl-group time-of-day-buttons';
+function addTimeOfDayDropdown() {
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.className = 'mapboxgl-ctrl mapboxgl-ctrl-group time-of-day-dropdown';
 
-    const dawnButton = createTimeOfDayButton('dawn', '☀️');
-    dawnButton.onclick = () => map.setConfigProperty('basemap', 'lightPreset', 'dawn');
-    
-    const dayButton = createTimeOfDayButton('day', '🌞');
-    dayButton.onclick = () => map.setConfigProperty('basemap', 'lightPreset', 'day');
-    
-    const duskButton = createTimeOfDayButton('dusk', '🌅');
-    duskButton.onclick = () => map.setConfigProperty('basemap', 'lightPreset', 'dusk');
-    
-    const nightButton = createTimeOfDayButton('night', '🌜');
-    nightButton.onclick = () => map.setConfigProperty('basemap', 'lightPreset', 'night');
+    const dropdownButton = document.createElement('button');
+    dropdownButton.className = 'mapboxgl-ctrl-icon dropdown-button';
+    dropdownButton.type = 'button';
+    dropdownButton.innerText = '🌞';
+    dropdownButton.onclick = () => {
+        dropdownMenu.classList.toggle('show');
+    };
 
-    timeOfDayContainer.appendChild(dawnButton);
-    timeOfDayContainer.appendChild(dayButton);
-    timeOfDayContainer.appendChild(duskButton);
-    timeOfDayContainer.appendChild(nightButton);
+    const dropdownMenu = document.createElement('div');
+    dropdownMenu.className = 'dropdown-menu';
+
+    const dawnButton = createDropdownButton('dawn', '☀️', 'Dawn');
+    dawnButton.onclick = () => {
+        map.setConfigProperty('basemap', 'lightPreset', 'dawn');
+        updateDropdownIcon('dawn');
+        dropdownMenu.classList.remove('show');
+    };
+
+    const dayButton = createDropdownButton('day', '🌞', 'Day');
+    dayButton.onclick = () => {
+        map.setConfigProperty('basemap', 'lightPreset', 'day');
+        updateDropdownIcon('day');
+        dropdownMenu.classList.remove('show');
+    };
+
+    const duskButton = createDropdownButton('dusk', '🌅', 'Dusk');
+    duskButton.onclick = () => {
+        map.setConfigProperty('basemap', 'lightPreset', 'dusk');
+        updateDropdownIcon('dusk');
+        dropdownMenu.classList.remove('show');
+    };
+
+    const nightButton = createDropdownButton('night', '🌜', 'Night');
+    nightButton.onclick = () => {
+        map.setConfigProperty('basemap', 'lightPreset', 'night');
+        updateDropdownIcon('night');
+        dropdownMenu.classList.remove('show');
+    };
+
+    dropdownMenu.appendChild(dawnButton);
+    dropdownMenu.appendChild(dayButton);
+    dropdownMenu.appendChild(duskButton);
+    dropdownMenu.appendChild(nightButton);
+
+    dropdownContainer.appendChild(dropdownButton);
+    dropdownContainer.appendChild(dropdownMenu);
 
     map.addControl({
         onAdd: () => {
-            return timeOfDayContainer;
+            return dropdownContainer;
         },
         onRemove: () => {
-            timeOfDayContainer.parentNode.removeChild(timeOfDayContainer);
+            dropdownContainer.parentNode.removeChild(dropdownContainer);
         }
-    }, 'bottom-left');
+    }, 'top-right');
 }
 
-function createTimeOfDayButton(id, text) {
+// Create dropdown button
+function createDropdownButton(id, text, label) {
     const button = document.createElement('button');
-    button.className = 'mapboxgl-ctrl-icon time-of-day-button';
+    button.className = 'dropdown-item';
     button.type = 'button';
     button.id = id;
     button.innerText = text;
+    button.title = label;
     return button;
 }
+
+// Update dropdown icon
+function updateDropdownIcon(timeOfDay) {
+    const dropdownButton = document.querySelector('.dropdown-button');
+    if (dropdownButton) {
+        switch (timeOfDay) {
+            case 'dawn':
+                dropdownButton.innerText = '☀️';
+                break;
+            case 'day':
+                dropdownButton.innerText = '🌞';
+                break;
+            case 'dusk':
+                dropdownButton.innerText = '🌅';
+                break;
+            case 'night':
+                dropdownButton.innerText = '🌜';
+                break;
+        }
+    }
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = (event) => {
+    if (!event.target.matches('.dropdown-button')) {
+        const dropdowns = document.getElementsByClassName('dropdown-menu');
+        for (let i = 0; i < dropdowns.length; i++) {
+            const openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+};
