@@ -49,25 +49,19 @@ function initializeMap(center = bangaloreCoordinates) {
 
 // Initialize the geocoders
 function initializeGeocoders() {
-    const bangaloreBounds = [77.3733, 12.7343, 77.8721, 13.1377]; // Approx bounding box for Bangalore
-    const karnatakaBounds = [74.0411, 11.5933, 78.5883, 18.4506]; // Approx bounding box for Karnataka
-    const indiaBounds = [68.1766, 6.7471, 97.4026, 35.5087]; // Approx bounding box for India
 
     const geocoderOptions = {
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
-        countries: "IN", // Limit results to India
         proximity: { longitude: 77.5946, latitude: 12.9716 }, // Bangalore coordinates for proximity
     };
 
     const geocoderStart = new MapboxGeocoder({
-        ...geocoderOptions,
-        bbox: bangaloreBounds, // Bangalore bounding box for first priority
+        ...geocoderOptions
     });
 
     const geocoderEnd = new MapboxGeocoder({
-        ...geocoderOptions,
-        bbox: bangaloreBounds, // Bangalore bounding box for first priority
+        ...geocoderOptions
     });
 
     // Append geocoders to the DOM
@@ -87,26 +81,6 @@ function initializeGeocoders() {
         panToLocation(endCoordinates);
  });
 
-    // Modify geocoder options to include broader search results
-    geocoderStart.on('results', (e) => {
-        if (e.features.length < 1) {
-            geocoderStart.setBbox(karnatakaBounds); // Extend search to Karnataka if no results in Bangalore
-            geocoderStart.query(e.query); // Re-query with the broader bounding box
-        } else if (e.features.length < 3) {
-            geocoderStart.setBbox(indiaBounds); // Extend search to India if few results in Karnataka
-            geocoderStart.query(e.query); // Re-query with the broader bounding box
-        }
-    });
-
-    geocoderEnd.on('results', (e) => {
-        if (e.features.length < 1) {
-            geocoderEnd.setBbox(karnatakaBounds); // Extend search to Karnataka if no results in Bangalore
-            geocoderEnd.query(e.query); // Re-query with the broader bounding box
-        } else if (e.features.length < 3) {
-            geocoderEnd.setBbox(indiaBounds); // Extend search to India if few results in Karnataka
-            geocoderEnd.query(e.query); // Re-query with the broader bounding box
-        }
-    });
 }
 
 // Add start marker
@@ -212,20 +186,55 @@ class PanToRouteControl {
     }
 }
 
-// Initialize map with user's current location or default location
-navigator.geolocation.getCurrentPosition(position => {
-    const userLocation = [position.coords.longitude, position.coords.latitude];
-    initializeMap(userLocation);
-}, error => {
-    console.error("Error getting user location:", error);
-    initializeMap();
-}, {
-    enableHighAccuracy: true,
-    maximumAge: 0,
-    timeout: 27000
-});
+function setTimeBasedMapStyleInitial() {
+    let now = new Date();
+    let hours = formatTime(now.getHours());
+    let minutes = formatTime(now.getMinutes());
+    let seconds = formatTime(now.getSeconds());
+    
+    console.log(`Current Time: ${hours}:${minutes}:${seconds}`);
 
-// Load geocoders independently on page load
+    if (hours >= 5 && hours < 8) {
+            map.setConfigProperty('basemap', 'lightPreset', 'dawn');
+    } else if (hours >= 8 && hours < 17) {
+            map.setConfigProperty('basemap', 'lightPreset', 'day');
+    } else if (hours >= 17 && hours < 20) {
+            map.setConfigProperty('basemap', 'lightPreset', 'dusk');
+    } else {
+            map.setConfigProperty('basemap', 'lightPreset', 'night');
+    }
+}
+
+function updateTimeBasedMapStyle() {
+    let now = new Date();
+    let hours = formatTime(now.getHours());
+    let minutes = formatTime(now.getMinutes());
+    let seconds = formatTime(now.getSeconds());
+    
+    console.log(`Current Time: ${hours}:${minutes}:${seconds}`);
+
+    if (hours == 5 && minutes==0) {
+            map.setConfigProperty('basemap', 'lightPreset', 'dawn');
+    } else if (hours == 8 && minutes==0) {
+            map.setConfigProperty('basemap', 'lightPreset', 'day');
+    } else if (hours == 17 && minutes==0) {
+            map.setConfigProperty('basemap', 'lightPreset', 'dusk');
+    } else if (hours == 20 && minutes==0) {
+            map.setConfigProperty('basemap', 'lightPreset', 'night');
+    }
+}
+
+// Start periodic updates for the map style based on time
+function startPeriodicTimeUpdates() {
+    setInterval(updateTimeBasedMapStyle, 60000);
+}
+function formatTime(number) {
+    return number < 10 ? '0' + number : number;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initializeGeocoders();
+    initializeMap();
+    setTimeout(setTimeBasedMapStyleInitial,500);
+    startPeriodicTimeUpdates();   
 });
