@@ -44,7 +44,7 @@ function initializeMap(center = bangaloreCoordinates) {
             }).setLngLat(userLocation).addTo(map);
         }
     });
-    addTimeOfDayButtons();
+    addTimeOfDayDropdown();
 }
 
 // Initialize the geocoders
@@ -196,12 +196,16 @@ function setTimeBasedMapStyleInitial() {
 
     if (hours >= 5 && hours < 8) {
             map.setConfigProperty('basemap', 'lightPreset', 'dawn');
+            updateDropdownIcon('dawn');
     } else if (hours >= 8 && hours < 17) {
             map.setConfigProperty('basemap', 'lightPreset', 'day');
+            updateDropdownIcon('day');
     } else if (hours >= 17 && hours < 20) {
             map.setConfigProperty('basemap', 'lightPreset', 'dusk');
+            updateDropdownIcon('dusk');
     } else {
             map.setConfigProperty('basemap', 'lightPreset', 'night');
+            updateDropdownIcon('night');
     }
 }
 
@@ -213,14 +217,18 @@ function updateTimeBasedMapStyle() {
     
     console.log(`Current Time: ${hours}:${minutes}:${seconds}`);
 
-    if (hours == 5 && minutes==0) {
+    if (hours == 5 && minutes == 0) {
             map.setConfigProperty('basemap', 'lightPreset', 'dawn');
-    } else if (hours == 8 && minutes==0) {
+            updateDropdownIcon('dawn');
+    } else if (hours == 8 && minutes == 0) {
             map.setConfigProperty('basemap', 'lightPreset', 'day');
-    } else if (hours == 17 && minutes==0) {
+            updateDropdownIcon('day');
+    } else if (hours == 17 && minutes == 0) {
             map.setConfigProperty('basemap', 'lightPreset', 'dusk');
-    } else if (hours == 20 && minutes==0) {
+            updateDropdownIcon('dusk');
+    } else if (hours == 20 && minutes == 0) {
             map.setConfigProperty('basemap', 'lightPreset', 'night');
+            updateDropdownIcon('night');
     }
 }
 
