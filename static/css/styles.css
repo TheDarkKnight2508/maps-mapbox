@@ -74,3 +74,49 @@ body {
     top: 50%;
     transform: translateY(-50%);
 }
+
+/* Dropdown styling */
+.time-of-day-dropdown {
+    position: relative;
+}
+
+.dropdown-button {
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.dropdown-button:hover {
+    background-color: #e0e0e0;
+}
+
+.dropdown-button:focus {
+    outline: none;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 50px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    color: black;
+    padding: 5px 10px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #e0e0e0;
+}
