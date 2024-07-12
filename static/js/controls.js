@@ -182,7 +182,7 @@ function addMapStyleDropdown() {
     const standardButton = createDropdownButton('standard', '🗺️', 'Standard');
     standardButton.onclick = () => {
         map.setStyle('mapbox://styles/mapbox/standard');
-        setTimeout(setTimeBasedMapStyleInitial, 100);
+        setTimeout(setTimeBasedMapStyleInitial, 500);
         dropdownMenu.classList.remove('show');
     };
 

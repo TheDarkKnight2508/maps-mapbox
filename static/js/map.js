@@ -248,6 +248,6 @@ function formatTime(number) {
 document.addEventListener('DOMContentLoaded', () => {
     initializeGeocoders();
     initializeMap();
-    setTimeout(setTimeBasedMapStyleInitial,100);
+    setTimeout(setTimeBasedMapStyleInitial,500);
     startPeriodicTimeUpdates();   
 });
