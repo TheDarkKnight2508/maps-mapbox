@@ -83,7 +83,7 @@ function addRouteToMap(route) {
                 'line-width': 10,
                 'line-opacity': 0.75
             }
-        });
+        }, 'traffic-moderate');
     }
 }
 
