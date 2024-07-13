@@ -1,3 +1,6 @@
+let savedLayers = [];
+let savedSources = [];
+
 class PitchControl {
     onAdd(map) {
         this.map = map;
@@ -180,17 +183,31 @@ function addMapStyleDropdown() {
     dropdownMenu.className = 'dropdown-menu';
 
     const standardButton = createDropdownButton('standard', '🗺️', 'Standard');
-    standardButton.onclick = () => {
-        map.setStyle('mapbox://styles/mapbox/standard');
-        setTimeout(setTimeBasedMapStyleInitial, 500);
-        dropdownMenu.classList.remove('show');
-    };
+standardButton.onclick = () => {
+    saveMapLayers(); // Save the layers
+    map.setStyle('mapbox://styles/mapbox/standard'); // Ensure this style URL is correct
+    map.once('styledata', () => {
+        setTimeout(() => {
+            setTimeBasedMapStyleInitial();
+            reapplyMapLayers(); // Reapply the saved layers
+        }, 1000); // Small delay to ensure the style is fully loaded
+    });
+    dropdownMenu.classList.remove('show');
+};
 
-    const satelliteButton = createDropdownButton('satellite', '🛰️', 'Satellite');
-    satelliteButton.onclick = () => {
-        map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
-        dropdownMenu.classList.remove('show');
-    };
+const satelliteButton = createDropdownButton('satellite', '🛰️', 'Satellite');
+satelliteButton.onclick = () => {
+    saveMapLayers(); // Save the layers
+    map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+    map.once('styledata', () => {
+        setTimeout(() => {
+            reapplyMapLayers(); // Reapply the saved layers
+        }, 1000); // Small delay to ensure the style is fully loaded
+    });
+    dropdownMenu.classList.remove('show');
+};
+
+
 
     dropdownMenu.appendChild(standardButton);
     dropdownMenu.appendChild(satelliteButton);
@@ -253,4 +270,31 @@ function closeDropdown(selector) {
     if (dropdownMenu && dropdownMenu.classList.contains('show')) {
         dropdownMenu.classList.remove('show');
     }
+}
+
+function saveMapLayers() {
+    savedLayers = [];
+    savedSources = [];
+    const style = map.getStyle();
+
+    style.layers.forEach(layer => {
+        if (layer.id.startsWith('traffic-') || layer.id === 'route') {
+            savedLayers.push(layer);
+        }
+    });
+
+    Object.entries(style.sources).forEach(([id, source]) => {
+        if (id === 'traffic' || id === 'route') {
+            savedSources.push({ id, source });
+        }
+    });
+}
+
+function reapplyMapLayers() {
+    savedSources.forEach(({ id, source }) => {
+        map.addSource(id, source);
+    });
+    savedLayers.forEach(layer => {
+        map.addLayer(layer);
+    });
 }
