@@ -26,6 +26,39 @@ function initializeMap(center = bangaloreCoordinates) {
         showUserHeading: true
     });
 
+    map.on('load', () => {
+        map.addSource('traffic', {
+            type: 'vector',
+            url: 'mapbox://mapbox.mapbox-traffic-v1'
+        });
+    
+        const congestionTypes = ['moderate', 'heavy', 'severe'];
+        const colors = {
+            'moderate': '#ffc107',
+            'heavy': '#dc3545',
+            'severe': '#8b0000'
+        };
+    
+        // Add moderate, heavy, and severe congestion layers
+        congestionTypes.forEach(type => {
+            map.addLayer({
+                id: `traffic-${type}`,
+                type: 'line',
+                source: 'traffic',
+                'source-layer': 'traffic',
+                filter: ['==', ['get', 'congestion'], type],
+                layout: {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                paint: {
+                    'line-color': colors[type],
+                    'line-width': 7
+                }
+            });
+        });
+    });
+
     map.addControl(geolocate, 'top-right');
 
     map.addControl(new PanToRouteControl(), 'top-right');
